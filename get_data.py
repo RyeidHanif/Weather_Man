@@ -32,44 +32,41 @@ class Weather_Data:
         self.year = year
         self.month = month
 
-    def load_data(self):
+    def load_data(self, month = None):
         if self.month:
-            return self.load_monthly_data()
-        else:
-            return self.load_yearly_data
-
-    def load_monthly_data(self):
-        file_path = os.path.join(
+            file_path = os.path.join(
             self.parser_file_path,
             f"Murree_weather_{self.year}_{Weather_Data.months_list[int(self.month) - 1]}.txt",
         )
 
-        try:
-            with open(file_path, "r") as csv_file:
-                weather_data = self.column_cutting(csv_file)
-
-        except FileNotFoundError as e:
-            raise FileNotFoundError(f"Invalid month or year entered: {e}")
-
-        return weather_data
-
-    def load_yearly_data(self):
-        yearly_data = []
-
-        for month in Weather_Data.months_list:
-            file_path = os.path.join(
-                self.parser_file_path, f"Murree_weather_{self.year}_{month}.txt"
-            )
-
             try:
                 with open(file_path, "r") as csv_file:
-                    month_data = self.column_cutting(csv_file)
-                    yearly_data.append(month_data)
+                    weather_data = self.column_cutting(csv_file)
 
-            except FileNotFoundError:
-                continue
+            except FileNotFoundError as e:
+                raise FileNotFoundError(f"Invalid month or year entered: {e}")
 
-        return yearly_data
+            return weather_data
+        else:
+            yearly_data = []
+
+            for month in Weather_Data.months_list:
+                file_path = os.path.join(
+                    self.parser_file_path, f"Murree_weather_{self.year}_{month}.txt"
+                )
+
+                try:
+                    with open(file_path, "r") as csv_file:
+                        month_data = self.column_cutting(csv_file)
+                        yearly_data.append(month_data)
+
+                except FileNotFoundError:
+                    continue
+
+            return yearly_data
+
+            
+        
 
     def column_cutting(self, csv_file):
         csv_reader = csv.DictReader(csv_file)

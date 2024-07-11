@@ -1,5 +1,5 @@
 import argparse
-from get_data import Weather_data
+from get_data import Weather_Data
 from computation import Compute
 from visualizer import Bar_chart
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
         try:
             for entry in args.a:
                 year, month = map(int, entry.split("/"))
-                weather_data = Weather_data(args.parser_file_path, year, month)
+                weather_data = Weather_Data(args.parser_file_path, year, month)
                 monthly_data = weather_data.load_data(month)
 
                 computational_monthly = Compute(monthly_data)
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         try:
             for entry2 in args.e:
                 year = int(entry2)
-                yearly_data = Weather_data(args.parser_file_path, year, None)
+                yearly_data = Weather_Data(args.parser_file_path, year, None)
                 yearly_data_dicts = yearly_data.load_data()
                 compute_yearly = Compute(yearly_data_dicts)
 
@@ -63,8 +63,8 @@ if __name__ == "__main__":
         try:
             for entry3 in args.c:
                 year, month = map(int, entry3.split("/"))
-                monthly_data_b = Weather_data(args.parser_file_path, year, month)
-                monthly_chart = monthly_data_b.load_monthly_data()
+                monthly_data_b = Weather_Data(args.parser_file_path, year, month)
+                monthly_chart = monthly_data_b.load_data()
                 side_bar_chart = Bar_chart(monthly_chart)
                 side_bar_chart.visu()
         except Exception as e:
