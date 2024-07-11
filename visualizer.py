@@ -1,25 +1,30 @@
+"""Module to display a sideways bar chart on the console for every day of the month """
+
 from termcolor import colored
 
 
 class Bar_chart:
+    """Class containing attributes for monthly data and a method for the visualization of max and Min temperature of every day ."""
+
     def __init__(self, monthly_data):
+        """stores attribtues for instantiation of the class"""
+
         self.monthly_data = monthly_data
 
     def visu(self):
+        """Returns a bar chart consisting of differently colored + or - signs for max and in temperature for every day of the month respectively"""
 
-        max_temperatures = self.monthly_data["Max TemperatureC"]
-        min_temperatures = self.monthly_data["Min TemperatureC"]
+        max_temperatures = []
+        min_temperatures = []
 
-        max_temperatures = [
-            int(temp) if temp.isdigit() else None for temp in max_temperatures
-        ]
-        min_temperatures = [
-            int(temp) if temp.isdigit() else None for temp in min_temperatures
-        ]
+        for row in self.monthly_data:
+            max_temperatures.append(row.max_temp)
+            min_temperatures.append(row.min_temp)
+    
 
+     
         # Finding the maximum temperature for scaling the chart
-        max_temp_value = max(temp for temp in max_temperatures if temp is not None)
-
+        
         for day in range(len(max_temperatures)):
             max_temp = max_temperatures[day]
             min_temp = min_temperatures[day]

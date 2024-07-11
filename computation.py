@@ -1,164 +1,127 @@
+"""Module to compute the following : 
+    1. Maximum and Minimum Temperature in a month
+    2. Mean humidity in a month and max humidity in a year 
+    3. The corresponsing dates for every value"""
+
 import datetime
 
 
 class Compute:
+    """Class containing Attributes for monthly data.
+    Contains a method for computing the monthly data dictionary values .
+    Contains a method for computing the yearly data values from the list of dictionaries
+    """
 
     def __init__(self, monthly_data):
+        '"Initialize function , instantiation of object"'
+
         self.monthly_data = monthly_data
 
     def compute_monthly_data(self):
-        max_temperatures = self.monthly_data["Max TemperatureC"]
-        max_temperatures = [
-            int(temp) if temp.isdigit() else None for temp in max_temperatures
-        ]
-        max_temperatures = [temp for temp in max_temperatures if temp is not None]
-        max_temp = max(max_temperatures)
-        max_temp_index = max_temperatures.index(max_temp)
-
-        min_temperatures = self.monthly_data["Min TemperatureC"]
-        min_temperatures = [
-            int(temp2) if temp2.isdigit() else None for temp2 in min_temperatures
-        ]
-        min_temperatures = [temp2 for temp2 in min_temperatures if temp2 is not None]
-        min_temp = min(min_temperatures)
-        min_temp_index = min_temperatures.index(min_temp)
-
-        mean_humidity_list = self.monthly_data[" Mean Humidity"]
-        total_humidity = 0
+        """Computes and Returns 2 dictionaries for max temp , min temp and a value for the mean monthly humidity """
+        max_temp_month = -100
+        min_temp_month = 100
+        total_monthly_humi = 0
         humi_count = 0
-        for humi in mean_humidity_list:
+        for row in self.monthly_data:
 
-            if humi != "":
-                total_humidity += int(humi)
-                humi_count += 1
+            if row.max_temp is not None:
 
-            else:
-                humi = None
-        mean_humidity = total_humidity / humi_count
+                if  row.max_temp is not None and row.max_temp > max_temp_month:
+                    max_temp_month = row.max_temp
+                    max_temp_month_date = row.pkt
+            
+            if row.min_temp is not None :
 
-        # finding date and time
+                if row.min_temp < min_temp_month:
+                    min_temp_month = row.min_temp
+                    min_temp_month_date = row.pkt
 
-        date_max_temp_raw = self.monthly_data["PKT"][max_temp_index]
-        date_max_temp_refined = datetime.datetime.strptime(
-            date_max_temp_raw, "%Y-%m-%d"
+            if row.mean_humidity is not None :
+                row.mean_humidity = int(row.mean_humidity)
+                total_monthly_humi += row.mean_humidity
+                humi_count +=1
+
+        mean_humidity_month = total_monthly_humi / humi_count if humi_count > 0  else  1
+
+        max_temp_month_day, max_temp_month_month, max_temp_month_year = self.strip_date(
+            max_temp_month_date
         )
-        max_temp_day = date_max_temp_refined.strftime("%d")
-        max_temp_month = date_max_temp_refined.strftime("%B")
-        max_temp_year = date_max_temp_refined.strftime("%Y")
-
-        date_min_temp_raw = self.monthly_data["PKT"][min_temp_index]
-        date_min_temp_refined = datetime.datetime.strptime(
-            date_min_temp_raw, "%Y-%m-%d"
+        min_temp_month_day, min_temp_month_month, min_temp_month_year = self.strip_date(
+            min_temp_month_date
         )
-        min_temp_day = date_min_temp_refined.strftime("%d")
-        min_temp_month = date_min_temp_refined.strftime("%B")
-        min_temp_year = date_min_temp_refined.strftime("%Y")
 
-        max_temp_dict = {
-            "max_temp": max_temp,
+        max_monthly = {
+            "day": max_temp_month_day,
+            "month": max_temp_month_month,
+            "year": max_temp_month_year,
+        }
+
+        min_monthly = {
+            "day": min_temp_month_day,
+            "month": min_temp_month_month,
+            "year": min_temp_month_year,
+        }
+
+        return max_monthly, min_monthly, mean_humidity_month
+
+    def strip_date(self, date):
+        """strips the date into correct format and returns the day , month and year ."""
+        if date is not None :
+            date_refined = datetime.datetime.strptime(date, "%Y-%m-%d")
+            date_day = date_refined.strftime("%d")
+            date_month = date_refined.strftime("%B")
+            date_year = date_refined.strftime("%y")
+            return date_day, date_month, date_year
+
+    def compute_yearly_data(self, yearly_data):
+        max_temp = float("-inf")
+        min_temp = float("inf")
+        max_humidity = float("-inf")
+        max_temp_date = None
+        min_temp_date = None
+        max_humidity_date = None
+
+        for monthly_data in yearly_data:
+            for row in monthly_data:
+                if row.max_temp is not None and isinstance(row.max_temp, (int, float)):
+                    if row.max_temp > max_temp:
+                        max_temp = row.max_temp
+                        max_temp_date = row.pkt
+
+                if row.min_temp is not None and isinstance(row.min_temp, (int, float)):
+                    if row.min_temp < min_temp:
+                        min_temp = row.min_temp
+                        min_temp_date = row.pkt
+
+                if row.mean_humidity is not None and isinstance(row.mean_humidity, (int, float)):
+                    if row.mean_humidity > max_humidity:
+                        max_humidity = row.mean_humidity
+                        max_humidity_date = row.pkt
+
+        max_temp_day, max_temp_month, max_temp_year = self.strip_date(max_temp_date)
+        min_temp_day, min_temp_month, min_temp_year = self.strip_date(min_temp_date)
+        max_humidity_day, max_humidity_month, max_humidity_year = self.strip_date(max_humidity_date)
+
+        max_temp_overall = {
+            "temperature": max_temp,
             "day": max_temp_day,
             "month": max_temp_month,
             "year": max_temp_year,
         }
 
-        min_temp_dict = {
-            "min_temp": min_temp,
+        min_temp_overall = {
+            "temperature": min_temp,
             "day": min_temp_day,
             "month": min_temp_month,
             "year": min_temp_year,
         }
 
-        return max_temp_dict, min_temp_dict, mean_humidity
+        max_humidity_overall = {
+            "humidity": max_humidity,
+            "day": max_humidity_day,
+            "month": max_humidity_month,
+            "year": max_humidity_year,
+        }
 
-    def compute_yearly_data(self, yearly_data_dicts):
-
-        max_temp_details_list = []
-        min_temp_details_list = []
-        max_humidity_details_list = []
-
-        for dict in yearly_data_dicts:
-
-            # maximum temperature handling for every month of the year
-
-            max_temperatures = dict["Max TemperatureC"]
-            max_temperatures = [
-                int(temp) if temp.isdigit() else None for temp in max_temperatures
-            ]
-            max_temperatures = [temp for temp in max_temperatures if temp is not None]
-            max_temp = max(max_temperatures)
-            max_temp_index = max_temperatures.index(max_temp)
-
-            date_max_temp_raw = dict["PKT"][max_temp_index]
-            date_max_temp_refined = datetime.datetime.strptime(
-                date_max_temp_raw, "%Y-%m-%d"
-            )
-            max_temp_day = date_max_temp_refined.strftime("%d")
-            max_temp_month = date_max_temp_refined.strftime("%B")
-
-            max_temp_sub_array = [max_temp, max_temp_day, max_temp_month]
-            max_temp_details_list.append(max_temp_sub_array)
-
-            # minimum temperature handlind for every month of the year
-
-            min_temperatures = dict["Min TemperatureC"]
-            min_temperatures = [
-                int(temp2) if temp2.isdigit() else None for temp2 in min_temperatures
-            ]
-            min_temperatures = [
-                temp2 for temp2 in min_temperatures if temp2 is not None
-            ]
-            min_temp = min(min_temperatures)
-            min_temp_index = min_temperatures.index(min_temp)
-
-            date_min_temp_raw = dict["PKT"][min_temp_index]
-            date_min_temp_refined = datetime.datetime.strptime(
-                date_min_temp_raw, "%Y-%m-%d"
-            )
-            min_temp_day = date_min_temp_refined.strftime("%d")
-            min_temp_month = date_min_temp_refined.strftime("%B")
-
-            min_temp_sub_array = [min_temp, min_temp_day, min_temp_month]
-            min_temp_details_list.append(min_temp_sub_array)
-
-            # handling humiditiy for every month of the year
-
-            max_humidities = dict["Max Humidity"]
-            max_humidities = [
-                int(humi) if humi.isdigit() else None for humi in max_humidities
-            ]
-            max_humidities = [humi for humi in max_humidities if humi is not None]
-            max_humi = max(max_humidities)
-            max_humi_index = max_humidities.index(max_humi)
-
-            date_max_humi_raw = dict["PKT"][max_humi_index]
-            date_max_humi_refined = datetime.datetime.strptime(
-                date_max_humi_raw, "%Y-%m-%d"
-            )
-            max_humi_day = date_max_humi_refined.strftime("%d")
-            max_humi_month = date_max_humi_refined.strftime("%B")
-
-            max_humi_sub_array = [max_humi, max_humi_day, max_humi_month]
-            max_humidity_details_list.append(max_humi_sub_array)
-
-        max_temp_overall = -100
-        min_temp_overall = 200
-        max_humidity_overall = -1
-
-        max_temp_overall_det = []
-        min1_temp_overall_det = []
-        max_humidity_overall_det = []
-
-        for x in range(len(max_temp_details_list)):
-            if max_temp_details_list[x][0] > max_temp_overall:
-                max_temp_overall = max_temp_details_list[x][0]
-                max_temp_overall_det = max_temp_details_list[x]
-
-            if min_temp_details_list[x][0] < min_temp_overall:
-                min_temp_overall = min_temp_details_list[x][0]
-                min1_temp_overall_det = min_temp_details_list[x]
-
-            if max_humidity_details_list[x][0] > max_humidity_overall:
-                max_humidity_overall = max_humidity_details_list[x][0]
-                max_humidity_overall_det = max_humidity_details_list[x]
-
-        return max_temp_overall_det, min1_temp_overall_det, max_humidity_overall_det
+        return max_temp_overall, min_temp_overall, max_humidity_overall

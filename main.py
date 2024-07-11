@@ -1,5 +1,11 @@
+"""Contains the main code where all the classes in various modules are instantiated 
+   ArgParser is used to parse various command line arguments from the user .
+   the parsed data is provided to instances / objects of the respective classes and their methods called . 
+
+   """
+
 import argparse
-from get_data import Weather_Data
+from get_data import WeatherData
 from computation import Compute
 from visualizer import Bar_chart
 
@@ -27,7 +33,7 @@ if __name__ == "__main__":
         try:
             for entry in args.a:
                 year, month = map(int, entry.split("/"))
-                weather_data = Weather_Data(args.parser_file_path, year, month)
+                weather_data = WeatherData(args.parser_file_path, year, month)
                 monthly_data = weather_data.load_data(month)
 
                 computational_monthly = Compute(monthly_data)
@@ -45,12 +51,12 @@ if __name__ == "__main__":
         try:
             for entry2 in args.e:
                 year = int(entry2)
-                yearly_data = Weather_Data(args.parser_file_path, year, None)
-                yearly_data_dicts = yearly_data.load_data()
-                compute_yearly = Compute(yearly_data_dicts)
+                yearly_data = WeatherData(args.parser_file_path, year, None)
+                yearly_data = yearly_data.load_data()
+                compute_yearly = Compute(yearly_data)
 
                 max_temp_overall_det, min_temp_overall_det, max_humidity_overall_det = (
-                    compute_yearly.compute_yearly_data(yearly_data_dicts)
+                    compute_yearly.compute_yearly_data(yearly_data)
                 )
 
                 print(f"Max Temperature Overall: {max_temp_overall_det}")
@@ -58,14 +64,17 @@ if __name__ == "__main__":
                 print(f"Max Humidity Overall: {max_humidity_overall_det}")
         except Exception as e:
             print("error occurred", e)
+            
 
     if args.c:
         try:
             for entry3 in args.c:
                 year, month = map(int, entry3.split("/"))
-                monthly_data_b = Weather_Data(args.parser_file_path, year, month)
-                monthly_chart = monthly_data_b.load_data()
+                monthly_data_b = WeatherData(args.parser_file_path, year, month)
+                monthly_chart = monthly_data_b.load_data(month)
                 side_bar_chart = Bar_chart(monthly_chart)
                 side_bar_chart.visu()
         except Exception as e:
             print("Error occured", e)
+    
+    
