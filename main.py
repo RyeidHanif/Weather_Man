@@ -10,11 +10,15 @@ if __name__ == "__main__":
     parser.add_argument(
         "parser_file_path", help="Enter the directory path to the weather files"
     )
-    parser.add_argument(
-        "option",
-        choices=["year", "bar_chart", "month"],
-        help="Choose the operation: year for yearly, month for monthly data, bar_chart for monthly bar chart",
-    )
+    # parser.add_argument(
+    #     "option",
+    #     choices=["year" "bar_chart", "month"],
+    #     help="Choose the operation: year for yearly, month  for monthly data, bar_chart for monthly bar chart",
+    # )
+    parser.add_argument("-a" ,  help = " Enter -a for month", action = 'store_true' , dest = 'a' )
+    parser.add_argument("-e" ,   help = " Enter -e for year",  action = 'store_true'  , dest = 'e')
+    parser.add_argument("-c" , help = " Enter -c for bar chart" , action = 'store_true' , dest = 'c' )
+
     parser.add_argument("year", type=int, help="Enter the year")
     parser.add_argument(
         "month",
@@ -26,7 +30,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    if args.option == "month":
+    if args.a:
 
         if args.month == None:
             parser.error("the following arguments are required: month")
@@ -43,7 +47,7 @@ if __name__ == "__main__":
         print(f"Min Temperature: {min_temp_dict}")
         print(f"Mean Humidity: {mean_hum}")
 
-    elif args.option == "year":
+    elif args.e :
 
         yearly_data = Weather_data(args.parser_file_path, args.year, args.month)
         yearly_data_dicts = yearly_data.load_yearly_data()
@@ -57,7 +61,7 @@ if __name__ == "__main__":
         print(f"Min Temperature Overall: {min_temp_overall_det}")
         print(f"Max Humidity Overall: {max_humidity_overall_det}")
 
-    elif args.option == "bar_chart":
+    elif args.c:
 
         monthly_data_b = Weather_data(args.parser_file_path, args.year, args.month)
         monthly_chart = monthly_data_b.load_monthly_data()
