@@ -2,13 +2,15 @@ import os
 import csv
 
 
-class Weather_data:
 
-    def __init__(self, parser_file_path, year, month):
-        self.parser_file_path = parser_file_path
-        self.year = year
-        self.month = month
-        self.columns_to_keep = [
+
+
+
+
+
+class Weather_Data:
+
+    columns_to_keep = [
             "PKT",
             "Max TemperatureC",
             "Mean TemperatureC",
@@ -16,7 +18,7 @@ class Weather_data:
             "Max Humidity",
             " Mean Humidity",
         ]
-        self.months_list = [
+    months_list = [
             "jan",
             "feb",
             "mar",
@@ -31,10 +33,21 @@ class Weather_data:
             "dec",
         ]
 
+    def __init__(self, parser_file_path, year, month = None):
+        self.parser_file_path = parser_file_path
+        self.year = year
+        self.month = month
+       
+    def load_data(self):
+        if self.month :
+            return self.load_monthly_data()
+        else : 
+            return self.load_yearly_data
+
     def load_monthly_data(self):
         file_path = os.path.join(
             self.parser_file_path,
-            f"Murree_weather_{self.year}_{self.months_list[int(self.month) - 1]}.txt",
+            f"Murree_weather_{self.year}_{Weather_Data.months_list[int(self.month) - 1]}.txt",
         )
 
         try:
@@ -47,9 +60,9 @@ class Weather_data:
         return weather_data
 
     def load_yearly_data(self):
-        yearly_data_dicts = []
+        yearly_data = []
 
-        for month in self.months_list:
+        for month in Weather_Data.months_list:
             file_path = os.path.join(
                 self.parser_file_path, f"Murree_weather_{self.year}_{month}.txt"
             )
@@ -57,17 +70,21 @@ class Weather_data:
             try:
                 with open(file_path, "r") as csv_file:
                     month_data = self.column_cutting(csv_file)
-                    yearly_data_dicts.append(month_data)
+                    yearly_data.append(month_data)
 
             except FileNotFoundError:
                 continue
 
-        return yearly_data_dicts
+        return yearly_data
 
     def column_cutting(self, csv_file):
         csv_reader = csv.DictReader(csv_file)
-        month_data = {col: [] for col in self.columns_to_keep}
+        month_data = {col: [] for col in Weather_Data.columns_to_keep}
         for row in csv_reader:
-            for col in self.columns_to_keep:
-                month_data[col].append(row[col])
+            for col in Weather_Data.columns_to_keep:
+                if col in row :
+                    month_data[col].append(row[col])
+                else : 
+                    continue
+                
         return month_data
