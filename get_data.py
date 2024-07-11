@@ -2,46 +2,40 @@ import os
 import csv
 
 
-
-
-
-
-
-
 class Weather_Data:
 
     columns_to_keep = [
-            "PKT",
-            "Max TemperatureC",
-            "Mean TemperatureC",
-            "Min TemperatureC",
-            "Max Humidity",
-            " Mean Humidity",
-        ]
+        "PKT",
+        "Max TemperatureC",
+        "Mean TemperatureC",
+        "Min TemperatureC",
+        "Max Humidity",
+        " Mean Humidity",
+    ]
     months_list = [
-            "jan",
-            "feb",
-            "mar",
-            "apr",
-            "may",
-            "jun",
-            "jul",
-            "aug",
-            "sep",
-            "oct",
-            "nov",
-            "dec",
-        ]
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+    ]
 
-    def __init__(self, parser_file_path, year, month = None):
+    def __init__(self, parser_file_path, year, month=None):
         self.parser_file_path = parser_file_path
         self.year = year
         self.month = month
-       
+
     def load_data(self):
-        if self.month :
+        if self.month:
             return self.load_monthly_data()
-        else : 
+        else:
             return self.load_yearly_data
 
     def load_monthly_data(self):
@@ -82,9 +76,9 @@ class Weather_Data:
         month_data = {col: [] for col in Weather_Data.columns_to_keep}
         for row in csv_reader:
             for col in Weather_Data.columns_to_keep:
-                if col in row :
+                if col in row:
                     month_data[col].append(row[col])
-                else : 
+                else:
                     continue
-                
+
         return month_data
