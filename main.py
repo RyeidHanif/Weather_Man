@@ -9,6 +9,33 @@ from get_data import WeatherData
 from computation import Compute
 from visualizer import Bar_chart
 
+
+def process_data(parser_file_path, year, month=None, chart=False):
+    """Contains a Series for checks for whether the User asks for Barcharts , Monthly or yearly data
+    Accordingly Returns the appropriate datastructure or value after instantiation of the computation and visualization class
+    """
+
+    weather_data = WeatherData(parser_file_path, year, month)
+    data = weather_data.load_data(month)
+    if chart:
+        side_bar_chart = Bar_chart(data)
+        side_bar_chart.visu()
+
+    else:
+        compute = Compute(data)
+        if month:
+            max_temp_monthly, min_temp_monthly, mean_hum = (
+                compute.compute_monthly_data()
+            )
+            return max_temp_monthly, min_temp_monthly, mean_hum
+
+        else:
+            max_temp_overall, min_temp_overall, max_humidity_overall = (
+                compute.compute_yearly_data(data)
+            )
+            return max_temp_overall, min_temp_overall, max_humidity_overall
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -30,51 +57,43 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.a:
-        try:
-            for entry in args.a:
-                year, month = map(int, entry.split("/"))
-                weather_data = WeatherData(args.parser_file_path, year, month)
-                monthly_data = weather_data.load_data(month)
 
-                computational_monthly = Compute(monthly_data)
-                max_temp_dict, min_temp_dict, mean_hum = (
-                    computational_monthly.compute_monthly_data()
-                )
-
-                print(f"Max Temperature: {max_temp_dict}")
-                print(f"Min Temperature: {min_temp_dict}")
-                print(f"Mean Humidity: {mean_hum}")
-        except Exception as e:
-            print("error occures", e)
+        for entry in args.a:
+            year, month = map(
+                int, entry.split("/")
+            )  # split the Year and month given separately by the user
+            max_temp_monthly, min_temp_monthly, mean_hum = process_data(
+                args.parser_file_path, year, month
+            )
+            print(f"\n  {max_temp_monthly['month']} , {max_temp_monthly['year']} \n")
+            print(
+                f"Highest Average Temperature: {max_temp_monthly['temperature']} on {max_temp_monthly['month']} {max_temp_monthly['day']}"
+            )
+            print(
+                f"Highest Average Temperature: {min_temp_monthly['temperature']} on {min_temp_monthly['month']} {min_temp_monthly['day']}"
+            )
+            print(f"Average Mean Humidity : {mean_hum}")
 
     if args.e:
-        try:
-            for entry2 in args.e:
-                year = int(entry2)
-                yearly_data = WeatherData(args.parser_file_path, year, None)
-                yearly_data = yearly_data.load_data()
-                compute_yearly = Compute(yearly_data)
 
-                max_temp_overall_det, min_temp_overall_det, max_humidity_overall_det = (
-                    compute_yearly.compute_yearly_data(yearly_data)
-                )
-
-                print(f"Max Temperature Overall: {max_temp_overall_det}")
-                print(f"Min Temperature Overall: {min_temp_overall_det}")
-                print(f"Max Humidity Overall: {max_humidity_overall_det}")
-        except Exception as e:
-            print("error occurred", e)
-            
+        for entry in args.e:
+            year = int(entry)
+            max_temp_overall, min_temp_overall, max_humidity_overall = process_data(
+                args.parser_file_path, year
+            )
+            print(f"\n  {max_temp_overall['month']} , {max_temp_overall['year']} \n")
+            print(
+                f"Highest temperature  : {max_temp_overall['temperature']}C on the {max_temp_overall['day']}st of {max_temp_overall['month']}"
+            )
+            print(
+                f"Lowest Temperature : {min_temp_overall['temperature']}C on the {min_temp_overall['day']}st of {min_temp_overall['month']}"
+            )
+            print(
+                f"Highest humidity  : {max_humidity_overall['humidity']}% on the {max_humidity_overall['day']}st of {max_humidity_overall['month']}"
+            )
 
     if args.c:
-        try:
-            for entry3 in args.c:
-                year, month = map(int, entry3.split("/"))
-                monthly_data_b = WeatherData(args.parser_file_path, year, month)
-                monthly_chart = monthly_data_b.load_data(month)
-                side_bar_chart = Bar_chart(monthly_chart)
-                side_bar_chart.visu()
-        except Exception as e:
-            print("Error occured", e)
-    
-    
+
+        for entry in args.c:
+            year, month = map(int, entry.split("/"))
+            process_data(args.parser_file_path, year, month, chart=True)

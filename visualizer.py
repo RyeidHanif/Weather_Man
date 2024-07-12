@@ -1,6 +1,7 @@
 """Module to display a sideways bar chart on the console for every day of the month """
 
 from termcolor import colored
+import datetime
 
 
 class Bar_chart:
@@ -20,11 +21,13 @@ class Bar_chart:
         for row in self.monthly_data:
             max_temperatures.append(row.max_temp)
             min_temperatures.append(row.min_temp)
-    
 
-     
+        date_refined = datetime.datetime.strptime(self.monthly_data[0].pkt, "%Y-%m-%d")
+        month = date_refined.strftime("%B")
+        year = date_refined.strftime("%Y")
+
         # Finding the maximum temperature for scaling the chart
-        
+        print("\n", month, year, "\n")
         for day in range(len(max_temperatures)):
             max_temp = max_temperatures[day]
             min_temp = min_temperatures[day]
@@ -33,12 +36,12 @@ class Bar_chart:
                 continue
 
             max_temp_bar = "+" * max_temp
-            min_temp_bar = "-" * min_temp
+            min_temp_bar = "+" * min_temp
 
             # Print day number and bars
             print(
-                colored(f"Day {day + 1} | Max: {max_temp_bar} ({max_temp}°C)", "blue")
-            )
-            print(
-                colored(f"Day {day + 1} | Min: {min_temp_bar} ({min_temp}°C)\n", "red")
+                colored(f"{day + 1} ", "white")
+                + colored(min_temp_bar, "blue")
+                + colored(f" {max_temp_bar}", "red")
+                + f" ({min_temp}C - {max_temp}C)"
             )

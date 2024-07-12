@@ -18,7 +18,7 @@ class Compute:
         self.monthly_data = monthly_data
 
     def compute_monthly_data(self):
-        """Computes and Returns 2 dictionaries for max temp , min temp and a value for the mean monthly humidity """
+        """Computes and Returns 2 dictionaries for max temp , min temp and a value for the mean monthly humidity"""
         max_temp_month = -100
         min_temp_month = 100
         total_monthly_humi = 0
@@ -27,22 +27,23 @@ class Compute:
 
             if row.max_temp is not None:
 
-                if  row.max_temp is not None and row.max_temp > max_temp_month:
+                if row.max_temp > max_temp_month:
                     max_temp_month = row.max_temp
                     max_temp_month_date = row.pkt
-            
-            if row.min_temp is not None :
+
+            if row.min_temp is not None:
 
                 if row.min_temp < min_temp_month:
                     min_temp_month = row.min_temp
                     min_temp_month_date = row.pkt
 
-            if row.mean_humidity is not None :
-                row.mean_humidity = int(row.mean_humidity)
-                total_monthly_humi += row.mean_humidity
-                humi_count +=1
+            if row.mean_humidity is not None:
+                if row.mean_humidity != "":
+                    row.mean_humidity = int(row.mean_humidity)
+                    total_monthly_humi += row.mean_humidity
+            humi_count += 1
 
-        mean_humidity_month = total_monthly_humi / humi_count if humi_count > 0  else  1
+        mean_humidity_month = total_monthly_humi / humi_count
 
         max_temp_month_day, max_temp_month_month, max_temp_month_year = self.strip_date(
             max_temp_month_date
@@ -52,12 +53,14 @@ class Compute:
         )
 
         max_monthly = {
+            "temperature": max_temp_month,
             "day": max_temp_month_day,
             "month": max_temp_month_month,
             "year": max_temp_month_year,
         }
 
         min_monthly = {
+            "temperature": min_temp_month,
             "day": min_temp_month_day,
             "month": min_temp_month_month,
             "year": min_temp_month_year,
@@ -66,15 +69,21 @@ class Compute:
         return max_monthly, min_monthly, mean_humidity_month
 
     def strip_date(self, date):
-        """strips the date into correct format and returns the day , month and year ."""
-        if date is not None :
+        """Strips the date into correct format and returns the day, month, and year."""
+        if date is not None:
             date_refined = datetime.datetime.strptime(date, "%Y-%m-%d")
             date_day = date_refined.strftime("%d")
             date_month = date_refined.strftime("%B")
-            date_year = date_refined.strftime("%y")
+            date_year = date_refined.strftime("%Y")
             return date_day, date_month, date_year
+        else:
+            return None, None, None
 
     def compute_yearly_data(self, yearly_data):
+        """checks whether any data is None , if so , removes it .
+        Computes the yearly Maximum Temperature , Minimum Temperature , Maxiimum Humidity and their Corresponding Dates
+        Returns 3 dictionaries of Maxtemp , Min temp and Max humidity"""
+
         max_temp = float("-inf")
         min_temp = float("inf")
         max_humidity = float("-inf")
@@ -82,6 +91,7 @@ class Compute:
         min_temp_date = None
         max_humidity_date = None
 
+        # Iterate through each month's data in the yearly_data
         for monthly_data in yearly_data:
             for row in monthly_data:
                 if row.max_temp is not None and isinstance(row.max_temp, (int, float)):
@@ -94,14 +104,18 @@ class Compute:
                         min_temp = row.min_temp
                         min_temp_date = row.pkt
 
-                if row.mean_humidity is not None and isinstance(row.mean_humidity, (int, float)):
-                    if row.mean_humidity > max_humidity:
-                        max_humidity = row.mean_humidity
+                if row.max_humidity is not None and isinstance(
+                    row.max_humidity, (int, float)
+                ):
+                    if row.max_humidity > max_humidity:
+                        max_humidity = row.max_humidity
                         max_humidity_date = row.pkt
 
         max_temp_day, max_temp_month, max_temp_year = self.strip_date(max_temp_date)
         min_temp_day, min_temp_month, min_temp_year = self.strip_date(min_temp_date)
-        max_humidity_day, max_humidity_month, max_humidity_year = self.strip_date(max_humidity_date)
+        max_humidity_day, max_humidity_month, max_humidity_year = self.strip_date(
+            max_humidity_date
+        )
 
         max_temp_overall = {
             "temperature": max_temp,
