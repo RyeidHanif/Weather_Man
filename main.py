@@ -8,6 +8,7 @@ import argparse
 from get_data import WeatherData
 from computation import Compute
 from visualizer import Bar_chart
+from termcolor import colored
 
 
 def process_data(parser_file_path, year, month=None, chart=False):
@@ -42,19 +43,25 @@ if __name__ == "__main__":
         "parser_file_path", help="Enter the directory path to the weather files"
     )
     parser.add_argument(
-        "-a", nargs="*", metavar=("YYYY/MM"), help="Monthly data in the format: YYYY/MM"
+        "-a",
+        metavar=("YYYY/MM"),
+        help="Monthly data in the format: YYYY/MM",
+        action="append",
     )
     parser.add_argument(
-        "-e", nargs="*", metavar=("YYYY"), help="Yearly data in the format: YYYY"
+        "-e", metavar=("YYYY"), help="Yearly data in the format: YYYY", action="append"
     )
     parser.add_argument(
         "-c",
-        nargs="*",
         metavar=("YYYY/MM"),
         help="Monthly bar chart data in the format: YYYY/MM",
+        action="append",
     )
 
     args = parser.parse_args()
+
+    if not (args.a or args.e or args.c):
+        parser.error("At least one of the arguments -a, -e, or -c is required.")
 
     if args.a:
 
@@ -65,12 +72,23 @@ if __name__ == "__main__":
             max_temp_monthly, min_temp_monthly, mean_hum = process_data(
                 args.parser_file_path, year, month
             )
-            print(f"\n  {max_temp_monthly['month']} , {max_temp_monthly['year']} \n")
             print(
-                f"Highest Average Temperature: {max_temp_monthly['temperature']} on {max_temp_monthly['month']} {max_temp_monthly['day']}"
+                colored(
+                    f"\n ----------------- {max_temp_monthly['month']} , {max_temp_monthly['year']}--------------- \n",
+                    "green",
+                )
             )
             print(
-                f"Highest Average Temperature: {min_temp_monthly['temperature']} on {min_temp_monthly['month']} {min_temp_monthly['day']}"
+                colored(
+                    f"Highest Average Temperature: {max_temp_monthly['temperature']} on {max_temp_monthly['month']} {max_temp_monthly['day']}",
+                    "red",
+                )
+            )
+            print(
+                colored(
+                    f"lowest Average Temperature: {min_temp_monthly['temperature']} on {min_temp_monthly['month']} {min_temp_monthly['day']}",
+                    "blue",
+                )
             )
             print(f"Average Mean Humidity : {mean_hum}")
 
@@ -81,15 +99,26 @@ if __name__ == "__main__":
             max_temp_overall, min_temp_overall, max_humidity_overall = process_data(
                 args.parser_file_path, year
             )
-            print(f"\n  {max_temp_overall['month']} , {max_temp_overall['year']} \n")
             print(
-                f"Highest temperature  : {max_temp_overall['temperature']}C on the {max_temp_overall['day']}st of {max_temp_overall['month']}"
+                colored(
+                    f"\n  --------------- {max_temp_overall['year']}-------------------- \n",
+                    "green",
+                )
             )
             print(
-                f"Lowest Temperature : {min_temp_overall['temperature']}C on the {min_temp_overall['day']}st of {min_temp_overall['month']}"
+                colored(
+                    f"Highest temperature  : {max_temp_overall['temperature']}C on the {max_temp_overall['day']}th of {max_temp_overall['month']}",
+                    "red",
+                )
             )
             print(
-                f"Highest humidity  : {max_humidity_overall['humidity']}% on the {max_humidity_overall['day']}st of {max_humidity_overall['month']}"
+                colored(
+                    f"Lowest Temperature : {min_temp_overall['temperature']}C on the {min_temp_overall['day']}th of {min_temp_overall['month']}",
+                    "blue",
+                )
+            )
+            print(
+                f"Highest humidity  : {max_humidity_overall['humidity']}% on the {max_humidity_overall['day']}th of {max_humidity_overall['month']}"
             )
 
     if args.c:

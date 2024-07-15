@@ -75,9 +75,8 @@ class WeatherData:
                 try:
                     monthly_data = self.load_data_from_file(file_path)
                     yearly_data.append(monthly_data)
-                except FileNotFoundError as e:
-                    print(f"Error loading data for month {month_index}: {e}")
-
+                except FileNotFoundError as fe:
+                    continue
             return yearly_data
 
     def load_data_from_file(self, file_path):
@@ -102,7 +101,7 @@ class WeatherData:
                 mean_temp=row.get("Mean TemperatureC"),
                 min_temp=row.get("Min TemperatureC"),
                 max_humidity=row.get("Max Humidity"),
-                mean_humidity=row.get("Mean Humidity"),
+                mean_humidity=row.get(" Mean Humidity"),
             )
             month_data.append(my_obj)
 

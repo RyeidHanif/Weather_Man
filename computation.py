@@ -23,6 +23,7 @@ class Compute:
         min_temp_month = 100
         total_monthly_humi = 0
         humi_count = 0
+
         for row in self.monthly_data:
 
             if row.max_temp is not None:
