@@ -1,40 +1,37 @@
-"""Contains the main code where all the classes in various modules are instantiated 
-   ArgParser is used to parse various command line arguments from the user .
-   the parsed data is provided to instances / objects of the respective classes and their methods called . 
-
-   """
+"""
+Contains the main code where all the classes in various modules are instantiated 
+ArgParser is used to parse various command line arguments from the user .
+the parsed data is provided to instances / objects of the respective classes and their methods called . 
+"""
 
 import argparse
 from get_data import WeatherData
 from computation import Compute
-from visualizer import Bar_chart
+from visualizer import Visualize
 from termcolor import colored
 
 
 def process_data(parser_file_path, year, month=None, chart=False):
-    """Contains a Series for checks for whether the User asks for Barcharts , Monthly or yearly data
+    """
+    Contains a Series for checks for whether the User asks for Barcharts , Monthly or yearly data
     Accordingly Returns the appropriate datastructure or value after instantiation of the computation and visualization class
+    According to the Parameters , if the chart is set to True , weather data for that specific month will be loaded and the visualization function called
+    Otherwise the choice will be between displaying yearly or monthly data
+    In This case , if the month has been specified in the Command line arguments , monthly data is stored and the Monthly Computation function called
+    Otherwise  The yearly function is used
     """
 
     weather_data = WeatherData(parser_file_path, year, month)
-    data = weather_data.load_data(month)
+    total_data = weather_data.load_data(month)
+
     if chart:
-        side_bar_chart = Bar_chart(data)
-        side_bar_chart.visu()
-
+        side_bar_chart = Visualize(total_data)
+        side_bar_chart.bar_chart()
     else:
-        compute = Compute(data)
-        if month:
-            max_temp_monthly, min_temp_monthly, mean_hum = (
-                compute.compute_monthly_data()
-            )
-            return max_temp_monthly, min_temp_monthly, mean_hum
+        compute = Compute(total_data)
+        max_temp, min_temp, mean_humidity = compute.compute_data()
 
-        else:
-            max_temp_overall, min_temp_overall, max_humidity_overall = (
-                compute.compute_yearly_data(data)
-            )
-            return max_temp_overall, min_temp_overall, max_humidity_overall
+        return max_temp, min_temp, mean_humidity
 
 
 if __name__ == "__main__":
@@ -64,65 +61,24 @@ if __name__ == "__main__":
         parser.error("At least one of the arguments -a, -e, or -c is required.")
 
     if args.a:
-
         for entry in args.a:
-            year, month = map(
-                int, entry.split("/")
-            )  # split the Year and month given separately by the user
-            max_temp_monthly, min_temp_monthly, mean_hum = process_data(
+            year, month = map(int, entry.split("/"))
+            max_temp, min_temp, mean_humidity = process_data(
                 args.parser_file_path, year, month
             )
-            print(
-                colored(
-                    f"\n ----------------- {max_temp_monthly['month']} , {max_temp_monthly['year']}--------------- \n",
-                    "green",
-                )
-            )
-            print(
-                colored(
-                    f"Highest Average Temperature: {max_temp_monthly['temperature']} on {max_temp_monthly['month']} {max_temp_monthly['day']}",
-                    "red",
-                )
-            )
-            print(
-                colored(
-                    f"lowest Average Temperature: {min_temp_monthly['temperature']} on {min_temp_monthly['month']} {min_temp_monthly['day']}",
-                    "blue",
-                )
-            )
-            print(f"Average Mean Humidity : {mean_hum}")
+
+            Visualize.print_val(max_temp, min_temp, mean_humidity, year, month)
 
     if args.e:
-
         for entry in args.e:
             year = int(entry)
-            max_temp_overall, min_temp_overall, max_humidity_overall = process_data(
+            max_temp, min_temp, mean_humidity = process_data(
                 args.parser_file_path, year
             )
-            print(
-                colored(
-                    f"\n  --------------- {max_temp_overall['year']}-------------------- \n",
-                    "green",
-                )
-            )
-            print(
-                colored(
-                    f"Highest temperature  : {max_temp_overall['temperature']}C on the {max_temp_overall['day']}th of {max_temp_overall['month']}",
-                    "red",
-                )
-            )
-            print(
-                colored(
-                    f"Lowest Temperature : {min_temp_overall['temperature']}C on the {min_temp_overall['day']}th of {min_temp_overall['month']}",
-                    "blue",
-                )
-            )
-            print(
-                f"Highest humidity  : {max_humidity_overall['humidity']}% on the {max_humidity_overall['day']}th of {max_humidity_overall['month']}"
-            )
+
+            Visualize.print_val(max_temp, min_temp, mean_humidity, year)
 
     if args.c:
-
         for entry in args.c:
             year, month = map(int, entry.split("/"))
             process_data(args.parser_file_path, year, month, chart=True)

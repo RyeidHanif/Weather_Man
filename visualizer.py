@@ -4,7 +4,7 @@ from termcolor import colored
 import datetime
 
 
-class Bar_chart:
+class Visualize:
     """Class containing attributes for monthly data and a method for the visualization of max and Min temperature of every day ."""
 
     def __init__(self, monthly_data):
@@ -12,7 +12,7 @@ class Bar_chart:
 
         self.monthly_data = monthly_data
 
-    def visu(self):
+    def bar_chart(self):
         """Returns a bar chart consisting of differently colored + or - signs for max and in temperature for every day of the month respectively"""
 
         max_temperatures = []
@@ -45,3 +45,40 @@ class Bar_chart:
                 + colored(f" {max_temp_bar}", "red")
                 + f" ({min_temp}C - {max_temp}C)"
             )
+
+    def print_val( max_temp , min_temp , mean_humidity ,year , month = None):
+        """
+        Responsible for outputting the values for max , min temperature and mean humidity 
+        This was added as a function to reduce repetition and be reusable in the main code for years and months 
+        if the month is given , then it will be printed out in the terminal , otherwise only the year will be 
+        """
+
+        max_temp_day, max_temp_month, max_temp_year = max_temp.strip_date(
+                max_temp.pkt
+            )
+        min_temp_day, min_temp_month, min_temp_year = min_temp.strip_date(
+                min_temp.pkt
+            )
+
+     
+        print(
+                colored(
+                    f"\n ----------------- {month if month else "yearly data of "} , {year}--------------- \n", "green"
+                )
+            )
+        print(
+                colored(
+                    f"Highest Average Temperature: {max_temp.max_temp}C on {max_temp_day} {max_temp_month}",
+                    "red",
+                )
+            )
+        print(
+                colored(
+                    f"Lowest Average Temperature: {min_temp.min_temp}C on {min_temp_day} {min_temp_month}",
+                    "blue",
+                )
+            )
+
+        print(f"Average Mean Humidity : {mean_humidity}")
+        
+

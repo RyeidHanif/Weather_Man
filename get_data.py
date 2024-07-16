@@ -6,20 +6,13 @@ from daily_weather_data import WeatherDataRow
 
 
 class WeatherData:
-    """Class containing 2 class variables (lists) to use .
+    """
+    Class containing 1 class variable (list) to use  for months of the year
     Contains attributes for file path , year to display and the month for each object
     Contains a method to load monthly and yearly data
     Contains an internal function which cuts out useless columns from the Monthly_weather dictionary and yearly_weather dictionaries
     """
 
-    columns_to_keep = [
-        "PKT",
-        "Max TemperatureC",
-        "Mean TemperatureC",
-        "Min TemperatureC",
-        "Max Humidity",
-        " Mean Humidity",
-    ]
     months_of_the_year = [
         "jan",
         "feb",
@@ -42,8 +35,9 @@ class WeatherData:
         self.year = year
         self.month = month
 
-    def load_data(self, month=None):
-        """Load data for a specific month or all months if month is None.
+    def load_data(self, month):
+        """
+        Load data for a specific month or all months if month is None.
         Returns a List of Objects if the month is given in the format :
 
         list = [obj1 , obj2 , obj3]  each obj contains values for Max , Min temp and humidity
@@ -52,9 +46,8 @@ class WeatherData:
         with each object corresponding to a single day of the month
 
         2Dlist_yearly = [[obj1 , obj2 , obj3] , [obj4 , obj5 , obj6]]
-
-
         """
+        total_data = []
         if month is not None:
             # Load data for a specific month
             if month < 1 or month > 12:
@@ -63,32 +56,34 @@ class WeatherData:
                 self.parser_file_path,
                 f"Murree_weather_{self.year}_{WeatherData.months_of_the_year[month - 1]}.txt",
             )
-            return self.load_data_from_file(file_path)
+            total_data.extend(self.load_data_from_file(file_path))
+            return total_data
         else:
             # Load data for all months in the year
-            yearly_data = []
             for month_index in range(1, 13):
                 file_path = os.path.join(
                     self.parser_file_path,
                     f"Murree_weather_{self.year}_{WeatherData.months_of_the_year[month_index - 1]}.txt",
                 )
                 try:
-                    monthly_data = self.load_data_from_file(file_path)
-                    yearly_data.append(monthly_data)
+                    total_data.extend(self.load_data_from_file(file_path))
+
                 except FileNotFoundError as fe:
                     continue
-            return yearly_data
+            return total_data
 
     def load_data_from_file(self, file_path):
         """Internal method to load data from a file."""
+
         try:
             with open(file_path, "r") as csv_file:
-                return self.column_cutting(csv_file)
+                return self.handle_parsed(csv_file)
         except FileNotFoundError as e:
             raise FileNotFoundError(f"Invalid month or year entered: {e}")
 
-    def column_cutting(self, csv_file):
-        """Returns an array of objects of month data by instantiating an instance of tthe WeatherDataRow class.
+    def handle_parsed(self, csv_file):
+        """
+        Returns an array of objects of month data by instantiating an instance of tthe WeatherDataRow class.
         Provides the new instance (my_obj) with values from the dictionary created by Dictreader
         """
 
