@@ -2,6 +2,7 @@
 
 from termcolor import colored
 import datetime
+from daily_weather_data import WeatherDataRow
 
 
 class Visualize:
@@ -22,9 +23,9 @@ class Visualize:
             max_temperatures.append(row.max_temp)
             min_temperatures.append(row.min_temp)
 
-        date_refined = datetime.datetime.strptime(self.monthly_data[0].pkt, "%Y-%m-%d")
-        month = date_refined.strftime("%B")
-        year = date_refined.strftime("%Y")
+        
+        day , month , year = WeatherDataRow.strip_date(self.monthly_data[0])
+
 
         # Finding the maximum temperature for scaling the chart
         print("\n", month, year, "\n")
@@ -53,14 +54,9 @@ class Visualize:
         if the month is given , then it will be printed out in the terminal , otherwise only the year will be 
         """
 
-        max_temp_day, max_temp_month, max_temp_year = max_temp.strip_date(
-                max_temp.pkt
-            )
-        min_temp_day, min_temp_month, min_temp_year = min_temp.strip_date(
-                min_temp.pkt
-            )
+        max_temp_day, max_temp_month, max_temp_year = max_temp.strip_date()
+        min_temp_day, min_temp_month, min_temp_year = min_temp.strip_date()
 
-     
         print(
                 colored(
                     f"\n ----------------- {month if month else "yearly data of "} , {year}--------------- \n", "green"

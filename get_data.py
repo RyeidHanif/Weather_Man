@@ -38,39 +38,24 @@ class WeatherData:
     def load_data(self, month):
         """
         Load data for a specific month or all months if month is None.
-        Returns a List of Objects if the month is given in the format :
-
-        list = [obj1 , obj2 , obj3]  each obj contains values for Max , Min temp and humidity
-
-        The Yearly Data consists of a 2D list conttaining 12 Lists of Objects ,corresponding to each month
-        with each object corresponding to a single day of the month
-
-        2Dlist_yearly = [[obj1 , obj2 , obj3] , [obj4 , obj5 , obj6]]
+        Returns a List of objects according to input of a month 
+        If a month has been inputted the total data wil be of 30 to 31 objects 
+        Otherwise for a yearly data , the total data will be 365 or 366 objects in a list
         """
         total_data = []
-        if month is not None:
-            # Load data for a specific month
-            if month < 1 or month > 12:
-                raise ValueError("Invalid month value. Month must be between 1 and 12.")
+        months_to_load = self.months_of_the_year if month is None else [self.months_of_the_year[month - 1]]
+
+        for month_name in months_to_load:
             file_path = os.path.join(
                 self.parser_file_path,
-                f"Murree_weather_{self.year}_{WeatherData.months_of_the_year[month - 1]}.txt",
+                f"Murree_weather_{self.year}_{month_name}.txt"
             )
-            total_data.extend(self.load_data_from_file(file_path))
-            return total_data
-        else:
-            # Load data for all months in the year
-            for month_index in range(1, 13):
-                file_path = os.path.join(
-                    self.parser_file_path,
-                    f"Murree_weather_{self.year}_{WeatherData.months_of_the_year[month_index - 1]}.txt",
-                )
-                try:
-                    total_data.extend(self.load_data_from_file(file_path))
+            try:
+                total_data.extend(self.load_data_from_file(file_path))
+            except FileNotFoundError as fe:
+                continue
 
-                except FileNotFoundError as fe:
-                    continue
-            return total_data
+        return total_data
 
     def load_data_from_file(self, file_path):
         """Internal method to load data from a file."""
